@@ -407,6 +407,13 @@ static int handle_null (void *ctx)
 yajl_val yajl_tree_parse (const char *input,
                           char *error_buffer, size_t error_buffer_size)
 {
+    return yajl_tree_parse_options(input, error_buffer, error_buffer_size, 0);
+}
+
+yajl_val yajl_tree_parse_options (const char *input,
+                                   char *error_buffer, size_t error_buffer_size,
+                                   yajl_tree_option options)
+{
     static const yajl_callbacks callbacks =
         {
             /* null        = */ handle_null,
@@ -434,7 +441,10 @@ yajl_val yajl_tree_parse (const char *input,
         memset (error_buffer, 0, error_buffer_size);
 
     handle = yajl_alloc (&callbacks, NULL, &ctx);
-    yajl_config(handle, yajl_allow_comments, 1);
+    yajl_config(handle, yajl_allow_comments,
+            (options & yajl_tree_option_dont_allow_comments) ? 0 : 1);
+    yajl_config(handle, yajl_allow_trailing_separator,
+            (options & yajl_tree_option_allow_trailing_separator) ? 1 : 0);
 
     status = yajl_parse(handle,
                         (unsigned char *) input,

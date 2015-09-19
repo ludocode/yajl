@@ -97,6 +97,27 @@ struct yajl_val_s
 };
 
 /**
+ * Configuration parameters for the tree parser.
+ *
+ * \see yajl_tree_parse_options
+ */
+typedef enum {
+
+    /**
+     * Forbid javascript style comments present in JSON input. (Comments
+     * are accepted by default for backwards-compatibility; this option
+     * turns them off.)
+     * */
+    yajl_tree_option_dont_allow_comments = 0x01,
+
+    /**
+     * Allow a comma trailing in the last element of array (or map)
+     */
+    yajl_tree_option_allow_trailing_separator = 0x02
+
+} yajl_tree_option;
+
+/**
  * Parse a string.
  *
  * Parses an null-terminated string containing JSON data and returns a pointer
@@ -112,11 +133,21 @@ struct yajl_val_s
  * \param error_buffer_size  Size of the memory area pointed to by
  *                           \em error_buffer_size. If \em error_buffer_size is
  *                           \c NULL, this argument is ignored.
+ * \param options            A mask of yajl_tree_option values
  *
  * \returns Pointer to the top-level value or \c NULL on error. The memory
  * pointed to must be freed using \em yajl_tree_free. In case of an error, a
  * null terminated message describing the error in more detail is stored in
  * \em error_buffer if it is not \c NULL.
+ */
+YAJL_API yajl_val yajl_tree_parse_options (const char *input,
+                                   char *error_buffer, size_t error_buffer_size,
+                                   yajl_tree_option options);
+
+/**
+ * Parse a string with no special options.
+ *
+ * \see yajl_tree_parse_options
  */
 YAJL_API yajl_val yajl_tree_parse (const char *input,
                                    char *error_buffer, size_t error_buffer_size);
