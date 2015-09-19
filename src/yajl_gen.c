@@ -58,6 +58,7 @@ yajl_gen_config(yajl_gen g, yajl_gen_option opt, ...)
         case yajl_gen_beautify:
         case yajl_gen_validate_utf8:
         case yajl_gen_escape_solidus:
+        case yajl_gen_allow_non_string_keys:
             if (va_arg(ap, int)) g->flags |= opt;
             else g->flags &= ~opt;
             break;
@@ -162,10 +163,12 @@ yajl_gen_free(yajl_gen g)
     }
 
 #define ENSURE_NOT_KEY \
-    if (g->state[g->depth] == yajl_gen_map_key ||       \
-        g->state[g->depth] == yajl_gen_map_start)  {    \
-        return yajl_gen_keys_must_be_strings;           \
-    }                                                   \
+    if (!(g->flags & yajl_gen_allow_non_string_keys)) {     \
+        if (g->state[g->depth] == yajl_gen_map_key ||       \
+            g->state[g->depth] == yajl_gen_map_start)  {    \
+            return yajl_gen_keys_must_be_strings;           \
+        }                                                   \
+    }
 
 /* check that we're not complete, or in error state.  in a valid state
  * to be generating */
